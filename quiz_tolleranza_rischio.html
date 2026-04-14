@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Tolleranza al Rischio Finanziario</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1A2B4A;
+    --mid: #1E3D6E;
+    --accent: #E8B84B;
+    --blue: #2563EB;
+    --blue-light: #EFF6FF;
+    --blue-mid: #BFDBFE;
+    --text: #1C2B3A;
+    --muted: #6B7C93;
+    --border: #E2E8F0;
+    --bg: #F8FAFC;
+    --white: #FFFFFF;
+    --green: #16A34A;
+    --orange: #EA580C;
+    --red: #DC2626;
+    --teal: #0D9488;
+    --purple: #7C3AED;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+  header {
+    background: var(--navy);
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header .logo {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  header .subtitle {
+    font-size: 12px;
+    color: #8AACCC;
+  }
+  .container { max-width: 740px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  /* INTRO */
+  .intro-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .intro-badge {
+    display: inline-block;
+    background: var(--blue-light);
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-bottom: 0.75rem;
+  }
+  .intro-title { font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 0.6rem; line-height: 1.3; }
+  .intro-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 1.25rem; }
+  .intro-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .intro-meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .intro-meta-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .start-btn {
+    display: block; width: 100%; margin-top: 1.5rem;
+    background: var(--navy); color: var(--white);
+    border: none; border-radius: 10px;
+    padding: 14px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .start-btn:hover { background: var(--mid); }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom: 1.75rem; }
+  .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .progress-section { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .progress-count { font-size: 13px; color: var(--muted); }
+  .progress-bar-bg { height: 5px; background: var(--border); border-radius: 3px; }
+  .progress-bar-fg { height: 5px; background: var(--blue); border-radius: 3px; transition: width 0.35s ease; }
+
+  /* QUESTION CARD */
+  .q-card {
+    background: var(--white); border-radius: 16px;
+    border: 1px solid var(--border); padding: 1.75rem;
+    margin-bottom: 1rem;
+  }
+  .dim-badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    padding: 3px 10px; border-radius: 99px; margin-bottom: 0.85rem;
+  }
+  .dim-gl { background: #EFF6FF; color: #1D4ED8; }
+  .dim-consob { background: #F0FDF4; color: #15803D; }
+  .q-text { font-size: 16px; font-weight: 600; color: var(--navy); line-height: 1.55; margin-bottom: 1.25rem; }
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .opt {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 13px 15px; border: 1.5px solid var(--border);
+    border-radius: 10px; cursor: pointer; background: var(--white);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .opt:hover { border-color: var(--blue-mid); background: var(--blue-light); }
+  .opt.selected { border-color: var(--blue); background: var(--blue-light); }
+  .opt-letter {
+    min-width: 26px; height: 26px; border-radius: 50%;
+    border: 1.5px solid var(--border); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    flex-shrink: 0; margin-top: 1px; transition: all 0.15s;
+  }
+  .opt.selected .opt-letter { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .opt-text { font-size: 14px; color: var(--text); line-height: 1.5; }
+
+  /* NAV */
+  .nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .nav-btn {
+    padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; border: 1.5px solid var(--border);
+    background: var(--white); color: var(--text);
+  }
+  .nav-btn:hover { background: var(--bg); }
+  .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .nav-btn.primary { background: var(--navy); color: var(--white); border-color: var(--navy); }
+  .nav-btn.primary:hover { background: var(--mid); }
+  .nav-btn.primary:disabled { background: var(--navy); opacity: 0.35; }
+
+  /* RESULT */
+  .result-header {
+    background: var(--navy); border-radius: 16px;
+    padding: 2rem; margin-bottom: 1rem; text-align: center;
+  }
+  .result-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+  .result-score { font-size: 56px; font-weight: 700; color: var(--white); line-height: 1; }
+  .result-score span { font-size: 24px; color: #8AACCC; }
+  .result-pct { font-size: 13px; color: #8AACCC; margin-top: 4px; }
+
+  .profile-card {
+    background: var(--white); border-radius: 16px;
+    border: 1px solid var(--border); padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .profile-top { display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem; }
+  .profile-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .profile-name { font-size: 19px; font-weight: 700; }
+  .profile-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  .split-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .split-card {
+    background: var(--white); border-radius: 12px;
+    border: 1px solid var(--border); padding: 1.1rem;
+  }
+  .split-card-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  .split-card-val { font-size: 22px; font-weight: 700; color: var(--navy); }
+  .split-card-val span { font-size: 13px; color: var(--muted); font-weight: 400; }
+
+  .dim-detail {
+    background: var(--white); border-radius: 16px;
+    border: 1px solid var(--border); padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .dim-detail-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 1rem; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-label { font-size: 12px; color: var(--muted); min-width: 145px; line-height: 1.3; }
+  .bar-bg { flex: 1; height: 7px; background: var(--border); border-radius: 4px; }
+  .bar-fill { height: 7px; border-radius: 4px; transition: width 0.6s ease; }
+  .bar-pct { font-size: 12px; color: var(--muted); min-width: 34px; text-align: right; }
+
+  .ibg-box {
+    background: #FFF7ED; border-radius: 12px;
+    border: 1px solid #FED7AA; padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .ibg-icon { font-size: 18px; margin-bottom: 0.5rem; }
+  .ibg-title { font-size: 13px; font-weight: 700; color: #9A3412; margin-bottom: 0.4rem; }
+  .ibg-text { font-size: 13px; color: #7C2D12; line-height: 1.7; }
+
+  .sources-box {
+    background: var(--bg); border-radius: 12px;
+    border: 1px solid var(--border); padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .sources-title { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+  .sources-text { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  .restart-btn {
+    display: block; width: 100%;
+    background: var(--white); color: var(--navy);
+    border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 13px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .restart-btn:hover { background: var(--bg); border-color: var(--mid); }
+
+  @media (max-width: 500px) {
+    .split-cards { grid-template-columns: 1fr; }
+    .bar-label { min-width: 110px; font-size: 11px; }
+    .intro-meta { flex-direction: column; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Finanza Comportamentale</div>
+    <div class="subtitle">Lezione 1 — Attività interattiva</div>
+  </div>
+</header>
+
+<div class="container">
+  <div id="root"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    section: "Grable & Lytton — Atteggiamento generale",
+    dim: "Rischio generale", gl: true,
+    text: "In generale, come ti descriverebbe il tuo migliore amico rispetto all'assunzione di rischio?",
+    opts: [
+      { text: "Un vero giocatore d'azzardo", score: 4 },
+      { text: "Disposto a correre rischi dopo aver raccolto informazioni sufficienti", score: 3 },
+      { text: "Cauto", score: 2 },
+      { text: "Avverso al rischio", score: 1 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Scelte di investimento",
+    dim: "Rischio investimento", gl: true,
+    text: "Sei seduto a giocare in un quiz televisivo e puoi scegliere tra queste opzioni. Quale sceglieresti?",
+    opts: [
+      { text: "1.000 € in contanti (sicuro)", score: 1 },
+      { text: "50% di probabilità di vincere 5.000 €", score: 2 },
+      { text: "25% di probabilità di vincere 10.000 €", score: 3 },
+      { text: "5% di probabilità di vincere 100.000 €", score: 4 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Reazione alle perdite",
+    dim: "Avversione alle perdite", gl: true,
+    text: "Hai appena finito di risparmiare per una vacanza 'irripetibile'. Tre settimane prima di partire perdi il lavoro. Cosa faresti?",
+    opts: [
+      { text: "Annullerei la vacanza", score: 1 },
+      { text: "Farei una vacanza molto più economica", score: 2 },
+      { text: "Partirei comunque come pianificato", score: 3 },
+      { text: "Partirei e userei il tempo per cercare lavoro all'estero", score: 4 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Situazione finanziaria",
+    dim: "Scelta lavorativa / rischio reddito", gl: true,
+    text: "Se dovessi scegliere tra due lavori, quale preferiresti?",
+    opts: [
+      { text: "Stipendio fisso garantito", score: 1 },
+      { text: "Stipendio base più basso, ma con bonus legato alla performance", score: 3 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Esperienza e conoscenza",
+    dim: "Esperienza finanziaria", gl: true,
+    text: "Quando investi in azioni o fondi, come ti senti di solito?",
+    opts: [
+      { text: "Non sono a mio agio; la mia conoscenza finanziaria è limitata", score: 1 },
+      { text: "Conosco abbastanza per fare le scelte di base", score: 2 },
+      { text: "Mi sento a mio agio; ho una buona conoscenza dei mercati", score: 3 },
+      { text: "Investo regolarmente e seguo i mercati con attenzione", score: 4 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Rischio speculativo",
+    dim: "Percezione del rischio", gl: true,
+    text: "Quando pensi al termine 'rischio finanziario', cosa ti viene in mente prima?",
+    opts: [
+      { text: "La perdita", score: 1 },
+      { text: "L'incertezza", score: 2 },
+      { text: "Un'opportunità di guadagno", score: 3 },
+      { text: "Eccitazione e sfida", score: 4 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Allocazione del portafoglio",
+    dim: "Composizione portafoglio", gl: true,
+    text: "Quale opzione descrive meglio come suddivideresti i tuoi risparmi?",
+    opts: [
+      { text: "Tutto in depositi sicuri a basso rendimento", score: 1 },
+      { text: "La maggior parte in sicuro, una piccola parte in rischioso", score: 2 },
+      { text: "Metà e metà tra sicuro e rischioso", score: 3 },
+      { text: "La maggior parte in investimenti rischiosi ad alto potenziale", score: 4 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Piano pensionistico",
+    dim: "Previdenza e certezza", gl: true,
+    text: "Il tuo datore di lavoro ha ristrutturato il piano pensionistico. Quale opzione preferisci?",
+    opts: [
+      { text: "Pensione tradizionale garantita", score: 1 },
+      { text: "Piano misto: garanzie + componente a rendimento variabile", score: 2 },
+      { text: "Piano di investimento a rendimento variabile con potenziale più alto", score: 3 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Tolleranza alle perdite",
+    dim: "Reazione al drawdown", gl: true,
+    text: "Supponi di aver perso il 25% di un investimento in tre mesi per una correzione di mercato. Cosa faresti?",
+    opts: [
+      { text: "Venderei tutto immediatamente", score: 1 },
+      { text: "Venderei parte dell'investimento", score: 2 },
+      { text: "Non farei nulla, aspetterei la ripresa", score: 3 },
+      { text: "Comprerei di più, approfittando dei prezzi bassi", score: 4 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Investimento dell'eredità",
+    dim: "Propensione azionaria", gl: true,
+    text: "Ricevi in eredità una somma equivalente al tuo stipendio annuale. Come la investiresti?",
+    opts: [
+      { text: "Conto corrente o conto deposito", score: 1 },
+      { text: "Obbligazioni o titoli di Stato", score: 2 },
+      { text: "Fondi bilanciati (azioni + obbligazioni)", score: 3 },
+      { text: "Prevalentemente azioni o fondi azionari", score: 4 }
+    ]
+  },
+  {
+    section: "Grable & Lytton — Inflazione vs sicurezza",
+    dim: "Protezione vs rendimento", gl: true,
+    text: "È più importante proteggersi dall'inflazione (perdita di potere d'acquisto) o mantenere il denaro al sicuro da perdite?",
+    opts: [
+      { text: "Sicurezza totale del capitale", score: 1 },
+      { text: "La sicurezza è prioritaria, ma capisco il valore della protezione dall'inflazione", score: 2 },
+      { text: "L'inflazione è il vero rischio a lungo termine: accetto qualche variabilità", score: 3 }
+    ]
+  },
+  {
+    section: "Dimensione CONSOB — Orizzonte temporale",
+    dim: "Orizzonte temporale", gl: false,
+    text: "Per quanto tempo intendi mantenere i tuoi investimenti senza aver bisogno di liquidarli?",
+    opts: [
+      { text: "Meno di 1 anno", score: 1 },
+      { text: "Da 1 a 3 anni", score: 2 },
+      { text: "Da 3 a 7 anni", score: 3 },
+      { text: "Più di 7 anni", score: 4 }
+    ]
+  },
+  {
+    section: "Dimensione CONSOB — Capacità di perdita",
+    dim: "Capacità oggettiva di rischio", gl: false,
+    text: "Quale percentuale del tuo patrimonio investibile potresti perdere senza compromettere il tuo tenore di vita?",
+    opts: [
+      { text: "Meno del 5%", score: 1 },
+      { text: "Tra il 5% e il 15%", score: 2 },
+      { text: "Tra il 15% e il 30%", score: 3 },
+      { text: "Più del 30%", score: 4 }
+    ]
+  },
+  {
+    section: "Dimensione CONSOB — Esperienza prodotti",
+    dim: "Conoscenza strumenti MiFID", gl: false,
+    text: "Con quali strumenti finanziari hai esperienza diretta di investimento?",
+    opts: [
+      { text: "Solo conti correnti, libretti o depositi bancari", score: 1 },
+      { text: "Obbligazioni o titoli di Stato", score: 2 },
+      { text: "Fondi comuni o ETF", score: 3 },
+      { text: "Azioni, derivati o prodotti strutturati", score: 4 }
+    ]
+  },
+  {
+    section: "Dimensione CONSOB — Reazione emotiva al mercato",
+    dim: "Impulsività / autocontrollo", gl: false,
+    text: "I mercati finanziari crollano del 20% in un mese. Qual è la tua reazione più probabile?",
+    opts: [
+      { text: "Panico: vendo tutto per limitare le perdite", score: 1 },
+      { text: "Preoccupazione: riduco l'esposizione", score: 2 },
+      { text: "Calma: aspetto che il mercato si riprenda", score: 3 },
+      { text: "Opportunità: incremento gli investimenti", score: 4 }
+    ]
+  }
+];
+
+const PROFILES = [
+  { min: 15, max: 24, name: "Molto conservativo", color: "#16A34A",
+    desc: "Hai una bassa tolleranza al rischio finanziario. Preferisci la certezza del capitale alla possibilità di rendimenti più elevati. I prodotti più adatti sono strumenti a capitale garantito, conti deposito e obbligazioni a breve termine." },
+  { min: 25, max: 33, name: "Conservativo-moderato", color: "#2563EB",
+    desc: "Accetti un rischio limitato pur privilegiando la stabilità. Un portafoglio prevalentemente obbligazionario con una piccola componente azionaria (20–30%) è coerente con il tuo profilo." },
+  { min: 34, max: 42, name: "Moderato", color: "#D97706",
+    desc: "Hai una tolleranza al rischio nella media. Riesci ad accettare fluttuazioni temporanee in cambio di rendimenti attesi più elevati nel lungo periodo. Un portafoglio bilanciato (50–60% azionario) è indicato." },
+  { min: 43, max: 51, name: "Dinamico", color: "#EA580C",
+    desc: "Hai una buona tolleranza al rischio. Preferisci la crescita del capitale nel lungo termine e accetti la volatilità come parte del processo. Un portafoglio prevalentemente azionario (70–80%) è coerente con il tuo profilo." },
+  { min: 52, max: 60, name: "Aggressivo", color: "#DC2626",
+    desc: "Hai una tolleranza al rischio molto elevata. Sei disposto ad accettare perdite significative nel breve periodo per massimizzare il rendimento atteso. Portafogli azionari globali, small cap e mercati emergenti corrispondono al tuo profilo." }
+];
+
+const DIM_COLORS = ["#2563EB","#0D9488","#7C3AED","#EA580C","#16A34A","#D97706","#DC2626","#1E3D6E","#EC4899","#6B7C93","#C026D3"];
+
+const IBG = {
+  low: "Il tuo punteggio segnala una forte preferenza per la sicurezza. Dal punto di vista comportamentale, questo è coerente con l'avversione alle perdite (loss aversion, Kahneman & Tversky 1979) e con lo status quo bias: tenderai a restare nelle scelte attuali anche quando strategie diverse potrebbero essere più adeguate ai tuoi obiettivi di lungo periodo.",
+  mid: "Il tuo profilo moderato è terreno fertile per l'intention-behavior gap: potresti dichiarare l'intenzione di diversificare il portafoglio o di aumentare la quota azionaria, senza poi attuarla per via dell'inerzia decisionale, della complessità percepita o della procrastinazione.",
+  high: "Attenzione all'overconfidence: un profilo di rischio elevato dichiarato (stated preference) non sempre corrisponde al comportamento effettivo in condizioni di mercato avverse (revealed preference). La ricerca mostra che il gap tra intenzione e comportamento può essere amplificato proprio per gli investitori più propensi al rischio, specialmente in fasi di forte volatilità."
+};
+
+let current = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+let phase = "intro";
+
+function getRoot() { return document.getElementById("root"); }
+
+function render() {
+  if (phase === "intro") renderIntro();
+  else if (phase === "quiz") renderQuestion();
+  else renderResult();
+}
+
+function renderIntro() {
+  getRoot().innerHTML = `
+    <div class="intro-card">
+      <span class="intro-badge">Attività interattiva in aula</span>
+      <h1 class="intro-title">Questionario sulla Tolleranza al Rischio Finanziario</h1>
+      <p class="intro-desc">
+        Questo quiz misura la tua tolleranza al rischio finanziario combinando due strumenti:
+        la scala psicometrica di <strong>Grable &amp; Lytton (1999)</strong> — lo strumento accademico più citato nella letteratura — e
+        le dimensioni rilevate dalla <strong>CONSOB</strong> nel quadro della valutazione di adeguatezza MiFID.
+        <br><br>
+        Al termine riceverai il tuo profilo di rischio, il punteggio disaggregato per dimensione, e
+        un commento sul legame tra la tua tolleranza dichiarata e l'<em>intention-behavior gap</em>.
+      </p>
+      <div class="intro-meta">
+        <div class="intro-meta-item"><div class="intro-meta-dot"></div>15 domande — circa 5 minuti</div>
+        <div class="intro-meta-item"><div class="intro-meta-dot"></div>11 item Grable &amp; Lytton · 4 item CONSOB</div>
+        <div class="intro-meta-item"><div class="intro-meta-dot"></div>Anonimo — nessun dato viene trasmesso</div>
+      </div>
+      <button class="start-btn" id="start-btn">Inizia il questionario →</button>
+    </div>
+    <div class="sources-box">
+      <div class="sources-title">Riferimenti bibliografici</div>
+      <div class="sources-text">
+        Grable, J. &amp; Lytton, R.H. (1999). Financial risk tolerance revisited: The development of a risk assessment instrument. <em>Financial Services Review</em>, 8, 163–181.<br>
+        Grable, J. &amp; Lytton, R.H. (2003). The development of a risk assessment instrument: A follow-up study. <em>Financial Services Review</em>, 12, 257–274.<br>
+        Kuzniak, S. et al. (2015). The Grable and Lytton risk-tolerance scale: A 15-year retrospective. <em>Financial Services Review</em>, 24, 177–192.<br>
+        CONSOB (2012). La rilevazione della tolleranza al rischio degli investitori da parte degli intermediari. Discussion Paper n. 4.<br>
+        Regolamento (UE) 2017/565 — Direttiva MiFID II, art. 54–55 (valutazione di adeguatezza).
+      </div>
+    </div>
+  `;
+  document.getElementById("start-btn").addEventListener("click", () => { phase = "quiz"; render(); });
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  const progress = (current / QUESTIONS.length) * 100;
+  const letters = ["A","B","C","D"];
+  getRoot().innerHTML = `
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-section">${q.section}</span>
+        <span class="progress-count">${current + 1} / ${QUESTIONS.length}</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fg" style="width:${progress}%"></div>
+      </div>
+    </div>
+    <div class="q-card">
+      <span class="dim-badge ${q.gl ? 'dim-gl' : 'dim-consob'}">
+        ${q.gl ? 'Grable &amp; Lytton' : 'CONSOB / MiFID'} — ${q.dim}
+      </span>
+      <div class="q-text">${q.text}</div>
+      <div class="options">
+        ${q.opts.map((o, i) => `
+          <div class="opt ${answers[current] === i ? 'selected' : ''}" data-i="${i}">
+            <div class="opt-letter">${letters[i]}</div>
+            <div class="opt-text">${o.text}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn" id="prev-btn" ${current === 0 ? 'disabled' : ''}>← Precedente</button>
+      <button class="nav-btn primary" id="next-btn" ${answers[current] === null ? 'disabled' : ''}>
+        ${current === QUESTIONS.length - 1 ? 'Vedi risultati →' : 'Successiva →'}
+      </button>
+    </div>
+  `;
+  getRoot().querySelectorAll(".opt").forEach(el => {
+    el.addEventListener("click", () => {
+      answers[current] = parseInt(el.dataset.i);
+      render();
+    });
+  });
+  document.getElementById("prev-btn").addEventListener("click", () => { if (current > 0) { current--; render(); } });
+  document.getElementById("next-btn").addEventListener("click", () => {
+    if (answers[current] !== null) { current++; render(); }
+  });
+}
+
+function renderResult() {
+  const total = answers.reduce((s, a, i) => s + (a !== null ? QUESTIONS[i].opts[a].score : 0), 0);
+  const maxScore = QUESTIONS.reduce((s, q) => s + Math.max(...q.opts.map(o => o.score)), 0);
+  const profile = PROFILES.find(p => total >= p.min && total <= p.max) || PROFILES[PROFILES.length - 1];
+  const pct = Math.round((total / maxScore) * 100);
+
+  const glScore = answers.reduce((s, a, i) => QUESTIONS[i].gl ? s + (a !== null ? QUESTIONS[i].opts[a].score : 0) : s, 0);
+  const glMax = QUESTIONS.filter(q => q.gl).reduce((s, q) => s + Math.max(...q.opts.map(o => o.score)), 0);
+  const consobScore = total - glScore;
+  const consobMax = maxScore - glMax;
+
+  const dims = {};
+  QUESTIONS.forEach((q, i) => {
+    if (!dims[q.dim]) dims[q.dim] = { score: 0, max: 0 };
+    dims[q.dim].score += answers[i] !== null ? q.opts[answers[i]].score : 0;
+    dims[q.dim].max += Math.max(...q.opts.map(o => o.score));
+  });
+
+  const ibgComment = pct < 40 ? IBG.low : pct < 70 ? IBG.mid : IBG.high;
+  const dimEntries = Object.entries(dims);
+
+  getRoot().innerHTML = `
+    <div class="result-header">
+      <div class="result-label">Il tuo punteggio</div>
+      <div class="result-score">${total}<span> / ${maxScore}</span></div>
+      <div class="result-pct">${pct}° percentile di rischio</div>
+    </div>
+
+    <div class="profile-card" style="border-left: 4px solid ${profile.color};">
+      <div class="profile-top">
+        <div class="profile-dot" style="background:${profile.color};"></div>
+        <div class="profile-name" style="color:${profile.color};">${profile.name}</div>
+      </div>
+      <div class="profile-desc">${profile.desc}</div>
+    </div>
+
+    <div class="split-cards">
+      <div class="split-card">
+        <div class="split-card-label">Scala Grable &amp; Lytton (11 item)</div>
+        <div class="split-card-val">${glScore} <span>/ ${glMax}</span></div>
+      </div>
+      <div class="split-card">
+        <div class="split-card-label">Dimensioni CONSOB / MiFID (4 item)</div>
+        <div class="split-card-val">${consobScore} <span>/ ${consobMax}</span></div>
+      </div>
+    </div>
+
+    <div class="dim-detail">
+      <div class="dim-detail-title">Punteggio per dimensione</div>
+      ${dimEntries.map(([dim, d], i) => {
+        const dp = Math.round((d.score / d.max) * 100);
+        const col = DIM_COLORS[i % DIM_COLORS.length];
+        return `<div class="bar-row">
+          <div class="bar-label">${dim}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${dp}%; background:${col};"></div></div>
+          <div class="bar-pct">${dp}%</div>
+        </div>`;
+      }).join("")}
+    </div>
+
+    <div class="ibg-box">
+      <div class="ibg-icon">⚡</div>
+      <div class="ibg-title">Collegamento con l'Intention-Behavior Gap</div>
+      <div class="ibg-text">${ibgComment}</div>
+    </div>
+
+    <div class="sources-box">
+      <div class="sources-title">Nota metodologica</div>
+      <div class="sources-text">
+        Il punteggio totale varia da 15 (minima tolleranza) a 60 (massima tolleranza). I profili sono calibrati sulla distribuzione empirica riportata da Kuzniak et al. (2015): media campionaria ≈ 28, SD ≈ 5. Le domande CONSOB corrispondono alle dimensioni di adeguatezza MiFID II (obiettivi, capacità finanziaria, conoscenza, orizzonte). Questo quiz ha finalità didattiche; non sostituisce la profilatura svolta da un intermediario autorizzato.
+      </div>
+    </div>
+
+    <button class="restart-btn" id="restart-btn">↺ Ripeti il questionario</button>
+  `;
+
+  document.getElementById("restart-btn").addEventListener("click", () => {
+    current = 0;
+    answers = new Array(QUESTIONS.length).fill(null);
+    phase = "intro";
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
+
+render();
+</script>
+</body>
+</html>
