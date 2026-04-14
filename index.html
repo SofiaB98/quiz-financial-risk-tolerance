@@ -501,7 +501,11 @@ function renderQuestion() {
   });
   document.getElementById("prev-btn").addEventListener("click", () => { if (current > 0) { current--; render(); } });
   document.getElementById("next-btn").addEventListener("click", () => {
-    if (answers[current] !== null) { current++; render(); }
+    if (answers[current] !== null) {
+      current++;
+      if (current >= QUESTIONS.length) phase = "result";
+      render();
+    }
   });
 }
 
